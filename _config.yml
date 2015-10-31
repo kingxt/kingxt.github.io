@@ -12,11 +12,8 @@ baseurl: ""
 
 # SNS settings
 RSS: false
-weibo_username:     huxpro
-zhihu_username:     huxpro
-github_username:    huxpro
-#twitter_username:  huxpro
-facebook_username:  huxpro
+weibo_username:     dream4kingxt
+github_username:    kingxt
 
 
 
