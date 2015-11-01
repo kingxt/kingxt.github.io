@@ -1,7 +1,7 @@
 # Site settings
 title: KingXt Blog
 SEOTitle: 徐涛的博客 | KingXt Blog
-header-img: img/avatar.jpeg
+header-img: img/home-bg.jpg
 email: huxpro@gmail.com
 description: "懂点代码"
 keyword: "iOS, 徐涛"
@@ -41,7 +41,7 @@ ga_domain: huangxuan.me
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
 sidebar-about-description: "写代码是会上瘾的。"
-sidebar-avatar: /img/avatar-hux.jpg     # use absolute URL.
+sidebar-avatar: /img/avatar.jpeg     # use absolute URL.
 
 
 
