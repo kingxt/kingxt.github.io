@@ -1,7 +1,7 @@
 # Site settings
 title: KingXt Blog
 SEOTitle: 徐涛的博客 | KingXt Blog
-header-img: img/home-bg.jpg
+header-img: img/avatar.jpeg
 email: huxpro@gmail.com
 description: "懂点代码"
 keyword: "iOS, 徐涛"
@@ -12,7 +12,7 @@ baseurl: ""
 
 # SNS settings
 RSS: false
-weibo_username:     dream4kingxt
+weibo_username:     2531664240
 github_username:    kingxt
 
 # Build settings
