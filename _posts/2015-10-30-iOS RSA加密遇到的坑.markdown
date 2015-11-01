@@ -87,7 +87,7 @@ tags:
 
 为了解决这个问题，我打算放弃使用iOS自带的RSA，改用openssl的RSA实现。代码如下：
 
-```
+```objc
 NSString *rsa_public_encrypt(NSData *data, void *public_key_val) {
     RSA *rsa_publicKey = NULL;
     int rsa_public_len;
