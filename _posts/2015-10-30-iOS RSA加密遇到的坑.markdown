@@ -1,12 +1,4 @@
----
-layout:     post
-title:      "IOS RSA加密遇到的坑"
-date:       2015-10-30
-author:     "KingXt"
-tags:
-    - iOS
----
-# IOS RSA加密遇到的坑
+﻿# IOS RSA加密遇到的坑
 
 
 ------
@@ -85,12 +77,10 @@ tags:
 
 为了解决这个问题，我打算放弃使用iOS自带的RSA，改用openssl的RSA实现。代码如下：
 ```c
-
 NSString *rsa_public_encrypt(NSData *data, void *public_key_val) {
     RSA *rsa_publicKey = NULL;
     int rsa_public_len;
     BIO *bio = NULL;
-    
     bio = BIO_new_mem_buf(public_key_val, -1);
     if (bio == NULL){
         printf("Pub Key Read Failure\n");
