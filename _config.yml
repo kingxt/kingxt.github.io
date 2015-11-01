@@ -26,7 +26,7 @@ anchorjs: true                          # if you want to customize anchor. check
 
 markdown: redcarpet2
 redcarpet:
-extensions: ["no_intra_emphasis", "fenced_code_blocks", "autolink", "tables", "with_toc_data"]
+  extensions: ["no_intra_emphasis", "fenced_code_blocks", "autolink", "tables", "with_toc_data"]
 
 # Analytics settings
 # Baidu Analytics
