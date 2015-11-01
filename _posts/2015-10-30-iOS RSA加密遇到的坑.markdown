@@ -86,8 +86,8 @@ tags:
 这个bug只会在device连接xcode调试时候出现，断开调试用device直接跑的时候不会出现添加失败情况。还没有找到解决方案😭。
 
 为了解决这个问题，我打算放弃使用iOS自带的RSA，改用openssl的RSA实现。代码如下：
-```c
 
+```
 NSString *rsa_public_encrypt(NSData *data, void *public_key_val) {
     RSA *rsa_publicKey = NULL;
     int rsa_public_len;
