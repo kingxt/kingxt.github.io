@@ -16,6 +16,7 @@ tags:
 我在用Security.framework时候遇到一个问题，用pem生成Public Key时候出错
 
 ```objc
+
  + (SecKeyRef)addPublicKey:(NSString *)key {
 	NSRange spos = [key rangeOfString:@"-----BEGIN PUBLIC KEY-----"];
 	NSRange epos = [key rangeOfString:@"-----END PUBLIC KEY-----"];
@@ -76,6 +77,7 @@ tags:
 	}
 	return keyRef;
 }
+
 ```
 上面这段代码是根据pem格式文件内容字符串（因为是base64过的）生成public key，我用iPhone6，iOS9.1连接Xcode Debug测试时候发现，某些情况调用SecItemAdd往keychain中添加秘钥时候status code 返回-34018，我google了一番，这是IOS的bug，具体请参考
 
@@ -85,6 +87,7 @@ tags:
 
 为了解决这个问题，我打算放弃使用iOS自带的RSA，改用openssl的RSA实现。代码如下：
 ```c
+
 NSString *rsa_public_encrypt(NSData *data, void *public_key_val) {
     RSA *rsa_publicKey = NULL;
     int rsa_public_len;
@@ -189,6 +192,7 @@ NSData *rsa_public_decrypt(NSData *data, void *public_key_val) {
     RSA_free(rsa_publicKey);
     return result;
 }
+
 ```
 这里有几个问题要注意：
  
