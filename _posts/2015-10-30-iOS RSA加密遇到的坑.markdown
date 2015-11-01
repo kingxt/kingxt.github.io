@@ -197,7 +197,7 @@ NSData *rsa_public_decrypt(NSData *data, void *public_key_val) {
 这里有几个问题要注意：
  
 
-> 1、公钥字符串每一行后面要加一个\n
+> 1、公钥字符串每一行后面要加一个
 > 2、加密后的数据长度
 > 3、解密后的数据长度
 
