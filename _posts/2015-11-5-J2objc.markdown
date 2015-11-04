@@ -1,4 +1,4 @@
-﻿---
+---
 layout:     post		
 title:      "J2objc"		
 date:       2015-11-05	
@@ -8,7 +8,9 @@ tags:
 ---
 
 # J2objc 
+
 ------
+
 1、如何删掉不想加入到 `libjar_emul` 编译文件中
 在java_sources.mk中删掉不想加入的类
 
