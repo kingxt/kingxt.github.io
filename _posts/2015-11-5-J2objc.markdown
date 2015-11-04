@@ -1,0 +1,234 @@
+﻿----	
+layout:     post		
+title:      "J2objc"		
+date:       2015-11-5	
+author:     "KingXt"		
+tags:
+    - iOS
+----
+
+# J2objc 
+---
+1、如何删掉不想加入到 `libjar_emul` 编译文件中
+在java_sources.mk中删掉不想加入的类
+
+###搭建 j2objc 环境，
+1、Mac搭建mvn环境，具体步骤可以参考
+2、先git clone下来https://github.com/google/j2objc,或者自己fork一个repository
+2、translator是java转oc的翻译器，将此项目导入工程，导入后你会发现一大堆编译错误，别慌，到translator目录下面的java_deps子目录里面mvn install，这时候mvn将给你下载依赖包，将这些包导入eclipse工具即可。
+3、自己编译j2objc，在translator目录下面make clean, make dist
+
+###J2objc使用注意事项
+大部分人认为java代码转到oc代码不靠谱，我从0.5这个版本就使用这个库，期间也被这个库坑过，不过如果你熟悉java和oc的话，可以根据自己项目需求定制翻译器，或者绕过有坑的地方，我说几个我曾经遇到的坑
+
+ 1、 Java的Annotation翻译到OC有性能问题，对java熟悉的人都是知道java的annotation十分强大，但是object-c是不支持注解的，为了实现支持注解，google工程师们想到了一个方法就是将注解弄成medidate，下面贴一段代码分析下：
+```java 
+@Subscribe
+public void handle(final SocketInboundClearMessagesPacketData data)
+{
+}
+    
+``` 
+上面这段代码通过j2obc翻译过来如下：
+```objc
++ (IOSObjectArray *)__annotations_handleWithSLSocketInboundClearMessagesPacketData_ {
+  return [IOSObjectArray arrayWithObjects:(id[]) { [[ComGoogleCommonEventbusSubscribe alloc] init] } count:1 type:JavaLangAnnotationAnnotation_class_()];
+}
+
+- (void)handleWithSLSocketInboundClearMessagesPacketData:(id<SLSocketInboundClearMessagesPacketData>)data {
+}
+
+```
+   实现思想很简单，给方法注解一定的描述，比如上面代码翻译过来的__annotations_*，形成一个匹配规则即可达到java annotation目的。但是我当时候实现一个java反射+annotation根据网络请求生成javabean，我测试了Javabean生成时间，这就是一个坑，相当耗时，建议不要过多依赖annotation。这主要原因是iOS没有java这种annotation机制，只能曲线救国，中间用了很多oc的runtime特性。
+
+2、java和OC怎么通讯了
+
+ - 通过iOS自带的NotificationCenter
+这种方式很成熟，但是在java端不兼容，java通过需要处理很复杂业务逻辑，业务类之间通讯怎么办？我们可以自己通过写MessageListenerManager常用做法实现。我参与过的两个即时通讯项目（聊聊，超信）是通过Event Bus实现
+ - 通过guava的Event Bus通讯
+guava的Event Bus是通过注解+反射实现，刚开始还很怀疑guava性能，我写了一个测试demo，发现一次event的简历到派发接受一般都是1-2ms，这个是能接受的，iOS自带的NotificationCenter一般都需要8ms派发接受时间，此时我很怀疑这个结论，然后我研究guava EventBus的源码，里面的实现是对回调有一套缓存机制，寻找Post 的Subscribe非常快，但是问题来了，我们自己写的OC类怎么扮演Subscribe角色了？
+
+我的解决方案写一个每个ViewController有一个Companion逻辑处理类，这个逻辑处理类都派生自一个EventHandle类
+```objc
+#import <Foundation/Foundation.h>
+#include "IOSClass.h"
+#include "J2ObjC_source.h"
+#include "com/google/common/eventbus/Subscribe.h"
+#include "com/google/common/eventbus/EventBus.h"
+
+void removeEventBusUnBindSubscribe();
+
+#define CREATE_ANNOTATONS_FUNC(TYPE, FUNC) \
++ (IOSObjectArray *)__annotations_##FUNC##With##TYPE##_ \
+{                                       \
+    return [IOSObjectArray arrayWithObjects:(id[]) { [[ComGoogleCommonEventbusSubscribe alloc] init] } count:1 type:JavaLangAnnotationAnnotation_class_()];                         \
+}                                       \
+                                        \
+- (void) FUNC##With##TYPE:(id)data  \
+{                                       \
+    [self FUNC:data];                 \
+}
+
+
+#define CREATE_CONTROLLER_COMPANION_INIT(TYPE) \
+- (instancetype)initWith##TYPE:(TYPE *)controller;
+
+#define CREATE_CONTROLLER_COMPANION_IMPL(TYPE) \
+{\
+    __weak TYPE *_controller; \
+}\
+- (instancetype)initWith##TYPE:(TYPE *)controller { \
+    self = [self init]; \
+    if (self) { \
+        _controller = controller; \
+    } \
+    return self; \
+}\
+- (BOOL)isInvalid:(NSObject *)referObj { \
+    return (_controller == nil || _controller == referObj); \
+}
+
+@interface SLJavaEventHandle : NSObject
+
+@property (nonatomic, weak) ComGoogleCommonEventbusEventBus *eventBus;
+- (BOOL)isInvalid:(NSObject *)referObj;
+
+@end
+
+@interface ComGoogleCommonEventbusEventBus (Tracking)
+
+@end
+```
+
+```objc
+
+#import "SLJavaEventHandle.h"
+
+static NSMutableArray<SLJavaEventHandle *> *_subscribeManager;
+
+void removeEventBusUnBindSubscribe(NSObject *bind) {
+    if (_subscribeManager) {
+        for (SLJavaEventHandle *handle in [_subscribeManager copy]) {
+            if ([handle isInvalid:bind]) {
+                [handle.eventBus unregisterWithId:handle];
+                handle.eventBus = nil;
+            }
+        }
+    }
+}
+
+@implementation SLJavaEventHandle
+
+- (BOOL)isInvalid:(NSObject *)referObj {
+    return NO;
+}
+
+@end
+
+@implementation ComGoogleCommonEventbusEventBus (Tracking)
+
++ (void)load {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        Class class = [self class];
+        
+        SEL originalRegisterSelector = @selector(register__WithId:);
+        SEL swizzledRegisterSelector = @selector(new_register__WithId:);
+        
+        SEL originalUnRegisterSelector = @selector(unregisterWithId:);
+        SEL swizzledUnRegisterSelector = @selector(new_unregisterWithId:);
+        
+        Method originalRegisterMethod = class_getInstanceMethod(class, originalRegisterSelector);
+        Method swizzledRegisterMethod = class_getInstanceMethod(class, swizzledRegisterSelector);
+        
+        Method originalUnRegisterMethod = class_getInstanceMethod(class, originalUnRegisterSelector);
+        Method swizzledUnRegisterMethod = class_getInstanceMethod(class, swizzledUnRegisterSelector);
+        
+        
+        BOOL didAddRegisgerMethod =
+        class_addMethod(class,
+                        originalRegisterSelector,
+                        method_getImplementation(swizzledRegisterMethod),
+                        method_getTypeEncoding(swizzledRegisterMethod));
+        
+        if (didAddRegisgerMethod) {
+            class_replaceMethod(class,
+                                swizzledRegisterSelector,
+                                method_getImplementation(originalRegisterMethod),
+                                method_getTypeEncoding(originalRegisterMethod));
+        } else {
+            method_exchangeImplementations(originalRegisterMethod, swizzledRegisterMethod);
+        }
+        
+        BOOL didAddUnRegisgerMethod =
+        class_addMethod(class,
+                        originalUnRegisterSelector,
+                        method_getImplementation(swizzledUnRegisterMethod),
+                        method_getTypeEncoding(swizzledUnRegisterMethod));
+        
+        if (didAddUnRegisgerMethod) {
+            class_replaceMethod(class,
+                                swizzledUnRegisterSelector,
+                                method_getImplementation(originalUnRegisterMethod),
+                                method_getTypeEncoding(originalUnRegisterMethod));
+        } else {
+            method_exchangeImplementations(originalUnRegisterMethod, swizzledUnRegisterMethod);
+        }
+    });
+}
+
+- (void)new_register__WithId:(id)subscribe {
+    [self new_register__WithId:subscribe];
+    if (!_subscribeManager) {
+        _subscribeManager = [NSMutableArray array];
+    }
+    if (subscribe && [subscribe isKindOfClass:[SLJavaEventHandle class]]) {
+        ((SLJavaEventHandle *)subscribe).eventBus = self;
+        [_subscribeManager addObject:subscribe];
+    }
+}
+
+- (void)new_unregisterWithId:(id)subscribe {
+    [self new_unregisterWithId:subscribe];
+    if (subscribe && _subscribeManager && [subscribe isKindOfClass:[SLJavaEventHandle class]]) {
+        ((SLJavaEventHandle *)subscribe).eventBus = nil;
+        [_subscribeManager removeObject:subscribe];
+    }
+}
+
+@end
+```
+大致的思路是通过swizzle解决Event Bus强应用导致Companion内存泄露问题，通过宏提供注解注入逻辑方式，业务逻辑只要派生自这个类，写自己的业务逻辑即可，类似如下demo
+```j2obc
+
+@interface SLMessageViewCompanion()
+
+@end
+
+@implementation SLMessageViewCompanion
+CREATE_CONTROLLER_COMPANION_IMPL(SLMessageViewController)
+
+CREATE_ANNOTATONS_FUNC(SLRemovePrivateChatMessageEvent, onRemovePrivateChatMessageEvent);
+- (void)onRemovePrivateChatMessageEvent:(id<SLRemovePrivateChatMessageEvent>)data {
+    [_controller resetConversation];
+}
+
+CREATE_ANNOTATONS_FUNC(SLClearPrivateChatMessagesEvent, onClearPrivateChatMessagesEvent);
+- (void)onClearPrivateChatMessagesEvent:(id<SLClearPrivateChatMessagesEvent>)data {
+    [_controller resetConversation];
+}
+
+CREATE_ANNOTATONS_FUNC(SLRemoveGroupChatMessageEvent, onRemoveGroupChatMessageEvent);
+- (void)onRemoveGroupChatMessageEvent:(id<SLRemoveGroupChatMessageEvent>)data {
+    [_controller resetConversation];
+}
+
+CREATE_ANNOTATONS_FUNC(SLClearGroupChatMessagesEvent, onClearGroupChatMessagesEvent);
+- (void)onClearGroupChatMessagesEvent:(id<SLClearGroupChatMessagesEvent>)data {
+    [_controller resetConversation];
+}
+
+@end
+```
+
+未完待续😊
