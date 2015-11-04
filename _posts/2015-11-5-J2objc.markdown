@@ -1,4 +1,4 @@
----
+﻿---
 layout:     post		
 title:      "J2objc"		
 date:       2015-11-05	
@@ -8,9 +8,7 @@ tags:
 ---
 
 # J2objc 
-
 ------
-
 1、如何删掉不想加入到 `libjar_emul` 编译文件中
 在java_sources.mk中删掉不想加入的类
 
@@ -51,6 +49,7 @@ public void handle(final SocketInboundClearMessagesPacketData data)
 guava的Event Bus是通过注解+反射实现，刚开始还很怀疑guava性能，我写了一个测试demo，发现一次event的简历到派发接受一般都是1-2ms，这个是能接受的，iOS自带的NotificationCenter一般都需要8ms派发接受时间，此时我很怀疑这个结论，然后我研究guava EventBus的源码，里面的实现是对回调有一套缓存机制，寻找Post 的Subscribe非常快，但是问题来了，我们自己写的OC类怎么扮演Subscribe角色了？
 
 我的解决方案写一个每个ViewController有一个Companion逻辑处理类，这个逻辑处理类都派生自一个EventHandle类
+
 ```objc
 #import <Foundation/Foundation.h>
 #include "IOSClass.h"
@@ -101,7 +100,7 @@ void removeEventBusUnBindSubscribe();
 
 @end
 ```
-
+下面是实现
 ```objc
 
 #import "SLJavaEventHandle.h"
@@ -201,8 +200,8 @@ void removeEventBusUnBindSubscribe(NSObject *bind) {
 @end
 ```
 大致的思路是通过swizzle解决Event Bus强应用导致Companion内存泄露问题，通过宏提供注解注入逻辑方式，业务逻辑只要派生自这个类，写自己的业务逻辑即可，类似如下demo
-```j2obc
 
+```objc
 @interface SLMessageViewCompanion()
 
 @end
