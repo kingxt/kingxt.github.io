@@ -1,4 +1,4 @@
----
+﻿---
 layout:     post		
 title:      "J2objc"		
 date:       2015-11-05	
@@ -102,7 +102,9 @@ void removeEventBusUnBindSubscribe();
 
 @end
 ```
+
 下面是实现
+
 ```objc
 
 #import "SLJavaEventHandle.h"
@@ -200,7 +202,9 @@ void removeEventBusUnBindSubscribe(NSObject *bind) {
 }
 
 @end
+
 ```
+
 大致的思路是通过swizzle解决Event Bus强应用导致Companion内存泄露问题，通过宏提供注解注入逻辑方式，业务逻辑只要派生自这个类，写自己的业务逻辑即可，类似如下demo
 
 ```objc
