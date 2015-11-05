@@ -56,7 +56,7 @@ guava的Event Bus是通过注解+反射实现，刚开始还很怀疑guava性能
 
 我的解决方案写一个每个ViewController有一个Companion逻辑处理类，这个逻辑处理类都派生自一个EventHandle类
 
-```objective_c
+```objc
 #import <Foundation/Foundation.h>
 #include "IOSClass.h"
 #include "J2ObjC_source.h"
@@ -109,7 +109,7 @@ void removeEventBusUnBindSubscribe();
 
 下面是实现
 
-```objective_c
+```objc
 
 #import "SLJavaEventHandle.h"
 
@@ -211,7 +211,7 @@ void removeEventBusUnBindSubscribe(NSObject *bind) {
 
 大致的思路是通过swizzle解决Event Bus强应用导致Companion内存泄露问题，通过宏提供注解注入逻辑方式，业务逻辑只要派生自这个类，写自己的业务逻辑即可，类似如下demo
 
-```objective_c
+```objc
 @interface SLMessageViewCompanion()
 
 @end
