@@ -4,7 +4,7 @@ title:      "IOS RSA加密遇到的坑 "
 date:       2015-10-30
 author:     "kingxt"
 tags:
-    - IOS
+    - iOS
 ---
 
 # IOS RSA加密遇到的坑

@@ -5,6 +5,7 @@ date:       2015-11-05
 author:     "KingXt"		
 tags:
     - iOS
+    - j2obc
 ---
 
 # J2objc 
@@ -24,6 +25,7 @@ tags:
 大部分人认为java代码转到oc代码不靠谱，我从0.5这个版本就使用这个库，期间也被这个库坑过，不过如果你熟悉java和oc的话，可以根据自己项目需求定制翻译器，或者绕过有坑的地方，我说几个我曾经遇到的坑
 
  1、 Java的Annotation翻译到OC有性能问题，对java熟悉的人都是知道java的annotation十分强大，但是object-c是不支持注解的，为了实现支持注解，google工程师们想到了一个方法就是将注解弄成medidate，下面贴一段代码分析下：
+ 
 ```java 
 @Subscribe
 public void handle(final SocketInboundClearMessagesPacketData data)
@@ -31,7 +33,9 @@ public void handle(final SocketInboundClearMessagesPacketData data)
 }
     
 ``` 
+
 上面这段代码通过j2obc翻译过来如下：
+
 ```objc
 + (IOSObjectArray *)__annotations_handleWithSLSocketInboundClearMessagesPacketData_ {
   return [IOSObjectArray arrayWithObjects:(id[]) { [[ComGoogleCommonEventbusSubscribe alloc] init] } count:1 type:JavaLangAnnotationAnnotation_class_()];
