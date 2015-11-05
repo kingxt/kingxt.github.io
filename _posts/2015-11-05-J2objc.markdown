@@ -45,6 +45,7 @@ public void handle(final SocketInboundClearMessagesPacketData data)
 }
 
 ```
+
    实现思想很简单，给方法注解一定的描述，比如上面代码翻译过来的__annotations_*，形成一个匹配规则即可达到java annotation目的。但是我当时候实现一个java反射+annotation根据网络请求生成javabean，我测试了Javabean生成时间，这就是一个坑，相当耗时，建议不要过多依赖annotation。这主要原因是iOS没有java这种annotation机制，只能曲线救国，中间用了很多oc的runtime特性。
 
 2、java和OC怎么通讯了
@@ -56,7 +57,7 @@ guava的Event Bus是通过注解+反射实现，刚开始还很怀疑guava性能
 
 我的解决方案写一个每个ViewController有一个Companion逻辑处理类，这个逻辑处理类都派生自一个EventHandle类
 
-```objective-c
+```objc
 #import <Foundation/Foundation.h>
 #include "IOSClass.h"
 #include "J2ObjC_source.h"
@@ -109,7 +110,7 @@ void removeEventBusUnBindSubscribe();
 
 下面是实现
 
-```objective-c
+```objc
 
 #import "SLJavaEventHandle.h"
 
@@ -211,7 +212,7 @@ void removeEventBusUnBindSubscribe(NSObject *bind) {
 
 大致的思路是通过swizzle解决Event Bus强应用导致Companion内存泄露问题，通过宏提供注解注入逻辑方式，业务逻辑只要派生自这个类，写自己的业务逻辑即可，类似如下demo
 
-```objective-c
+```objc
 @interface SLMessageViewCompanion()
 
 @end
