@@ -16,7 +16,7 @@ weibo_username:     2531664240
 github_username:    kingxt
 
 # Build settings
-highlighter: rouge
+highlighter: pygments
 permalink: pretty
 paginate: 10
 exclude: ["less","node_modules","Gruntfile.js","package.json","README.md"]
