@@ -16,10 +16,10 @@ tags:
 在java_sources.mk中删掉不想加入编译的类
 
 ###搭建 j2objc 环境，
-- Mac搭建mvn环境，具体步骤可以参考 http://www.journaldev.com/2348/how-to-install-maven-on-mac-os-x-mavericks-10-9
-- git clone下来https://github.com/google/j2objc, 或者自己fork一个repository
-- translator是java转oc的翻译器，将此项目导入工程，导入后你会发现一大堆编译错误，别慌，到translator目录下面的java_deps子目录里面mvn install，这时候mvn将给你下载依赖包，将这些包导入eclipse工具即可。
-- 自己编译j2objc，在translator目录下面make clean, make dist
+* Mac搭建mvn环境，具体步骤可以参考 http://www.journaldev.com/2348/how-to-install-maven-on-mac-os-x-mavericks-10-9
+* git clone下来https://github.com/google/j2objc, 或者自己fork一个repository
+* translator是java转oc的翻译器，将此项目导入工程，导入后你会发现一大堆编译错误，别慌，到translator目录下面的java_deps子目录里面mvn install，这时候mvn将给你下载依赖包，将这些包导入eclipse工具即可。
+* 自己编译j2objc，在translator目录下面make clean, make dist
 
 ###J2objc使用注意事项
 大部分人认为java代码转到oc代码不靠谱，我从0.5这个版本就使用这个库，期间也被这个库坑过，不过如果你熟悉java和oc的话，可以根据自己项目需求定制翻译器，或者绕过有坑的地方，我说几个我曾经遇到的坑
