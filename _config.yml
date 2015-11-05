@@ -28,7 +28,7 @@ markdown_ext:  markdown,mkdown,mkdn,mkd,md
 
 markdown: kramdowm
 kramdown:
-    input: GFM
+  input: GFM
 
 # Analytics settings
 # Baidu Analytics
