@@ -11,8 +11,6 @@ tags:
 
 最近在项目涉及到一点RSA算法问题，RSA是非对称秘钥加密，IOS在Security中支持大多数加密算法,AES, DES, RSA等。我在用Security.framework时候遇到一个问题，用pem生成Public Key时候出错
 
-{% highlight objc %}
-
 ```objc
  + (SecKeyRef)addPublicKey:(NSString *)key {
 	NSRange spos = [key rangeOfString:@"-----BEGIN PUBLIC KEY-----"];
@@ -76,8 +74,6 @@ tags:
 }
 
 ```
-
-{% endhighlight objc %}
 
 上面这段代码是根据pem格式文件内容字符串（因为是base64过的）生成public key，我用iPhone6，iOS9.1连接Xcode Debug测试时候发现，某些情况调用SecItemAdd往keychain中添加秘钥时候status code 返回-34018，我google了一番，这是IOS的bug，具体请参考
 
