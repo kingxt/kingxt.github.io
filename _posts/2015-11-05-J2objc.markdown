@@ -1,4 +1,4 @@
-﻿---
+---
 layout:     post		
 title:      "J2objc"		
 date:       2015-11-05	
