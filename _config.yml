@@ -27,10 +27,9 @@ anchorjs: true                          # if you want to customize anchor. check
 markdown: redcarpet
 markdown_ext:  markdown,mkdown,mkdn,mkd,md
 
-markdown: kramdown
-
-kramdown:
-  input: GFM
+markdown: redcarpet
+redcarpet:
+  extensions: ["smart", "tables", "no_intra_emphasis", "fenced_code_blocks", "autolink", "strikethrough", "superscript", "with_toc_data"]
 
 # Analytics settings
 # Baidu Analytics
