@@ -36,7 +36,7 @@ public void handle(final SocketInboundClearMessagesPacketData data)
 
 上面这段代码通过j2obc翻译过来如下：
 
-```objective-c
+```objc
 + (IOSObjectArray *)__annotations_handleWithSLSocketInboundClearMessagesPacketData_ {
   return [IOSObjectArray arrayWithObjects:(id[]) { [[ComGoogleCommonEventbusSubscribe alloc] init] } count:1 type:JavaLangAnnotationAnnotation_class_()];
 }
