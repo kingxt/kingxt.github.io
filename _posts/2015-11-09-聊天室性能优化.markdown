@@ -15,7 +15,7 @@ tags:
 
 聊天室里面主要是文字偏多，怎么做到文字多，图文混排，各种乱七八糟需求情况下能达到60fps了，比如聊天室要支持超链接情况下还需要支持超链接预览，支持超时间戳append到消息后缀。
 
-<img src="./../img/post/IMG_2724.PNG" with="200" height="250"/>
+<img src="/img/post/IMG_2724.PNG" with="200" height="250"/>
 
 为了实现功能同时不影响App流畅度，我们是通过缓存富文本实现，我们需要缓存富文本绘制的每行文本内容，这样在滚动时候只需要绘制文本即可。
 
@@ -67,7 +67,6 @@ typedef NS_ENUM(NSInteger, SLReusableLabelLayout) {
     [collectionView registerClass:[SLTimeRender class] forCellWithReuseIdentifier:NSStringFromClass(SLChatTimeMessage.class)];
     [collectionView registerClass:[SLChatSystemMessageRender class] forCellWithReuseIdentifier:NSStringFromClass(SLChatSystemMessage.class)];
     [collectionView registerClass:[SLUnknownMessageRender class] forCellWithReuseIdentifier:kUnknownMessageRenderIdentifer];
-
     [collectionView registerClass:[SLOutgoingTextMessageRender class] forCellWithReuseIdentifier:[NSString stringWithFormat:kTextMessageRenderIdentiferFormat, kIncoming]];
     [collectionView registerClass:[SLIncomingTextMessageRender class] forCellWithReuseIdentifier:[NSString stringWithFormat:kTextMessageRenderIdentiferFormat, kOutgoing]];
     ...
