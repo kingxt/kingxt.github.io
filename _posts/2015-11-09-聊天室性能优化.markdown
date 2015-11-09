@@ -1,0 +1,97 @@
+---
+layout: post
+title: "聊天室性能优化"
+date: 2015-11-11
+author: "KingXt"
+tags: 
+    - iOS
+---
+
+### [超信](https://itunes.apple.com/cn/app/chao-xin/id1013692970?l=en&mt=8)聊天室性能优化
+
+聊天室性能是即时通讯App体验至关重要的一点，微信大家用得多，怎么达到微信聊天室的流畅度，或者说怎么超过微信聊天室聊天室性能了？我不知道为什么老板把我们这个App取名超信，超越微信😄？这点难做到，也不是作为一个码农关注的，我相信某些技术方面可以超越微信。
+
+超信聊天室性能方面不错了，我分享下我对聊天室性能优化几个经验。
+
+聊天室里面主要是文字偏多，怎么做到文字多，图文混排，各种乱七八糟需求情况下能达到60fps了，比如聊天室要支持超链接情况下还需要支持超链接预览，支持超时间戳append到消息后缀。
+
+<img src="./../img/post/IMG_2724.PNG" with="200" height="250"/>
+
+为了实现功能同时不影响App流畅度，我们是通过缓存富文本实现，我们需要缓存富文本绘制的每行文本内容，这样在滚动时候只需要绘制文本即可。
+
+``` objc
+
+@interface SLReusableLabelLayoutData : NSObject
+@property(nonatomic) CGSize size;
+@property(nonatomic, strong) NSArray *textLines;
+@property(nonatomic) CGSize drawingSize;
+@property(nonatomic) float lastLineWidth;
+@property(nonatomic) float additionalHeight;
+#ifdef __cplusplus
+- (std::vector<SLLinkData> *)links;
+- (std::vector<SLLinePosition> *)lineOrigins;
+- (std::vector<SLRunAttachment *> *)runAttachment;
+- (SLLinkData *)linkAtPoint:(CGPoint)point;
+#endif
+
+@end
+
+typedef NS_ENUM(NSInteger, SLReusableLabelLayout) {
+    SLReusableLabelLayoutMultiline = 1,
+    SLReusableLabelLayoutHighlightLinks = 1 << 1,
+    SLReusableLabelLayoutDateSpacing = 1 << 2,
+    SLReusableLabelLayoutExtendedDateSpacing = 1 << 3
+};
+
+@interface SLRichTextHelper : NSObject
+
++ (SLReusableLabelLayoutData *)calculateLayout:(NSString *)text
+                                          font:(UIFont *)font
+                                     textColor:(UIColor *)textColor
+                                         frame:(CGRect)frame
+                                    orMaxWidth:(float)maxWidth
+                                         flags:(SLReusableLabelLayout)flags
+                                 textAlignment:(NSTextAlignment)textAlignment
+                       additionalTrailingWidth:(CGFloat)additionalTrailingWidth
+                                         style:(void (^)(NSMutableAttributedString *string, NSMutableArray *textCheckingResults))style;
+
+@end
+```
+
+上面是文本渲染缓存类接口，UILable可以重写`- (void)drawRect:(CGRect)rect` 方法，直接用这个LayoutData布局，而不需要重新布局文本。自己看这个接口的里面的属性，有一些是通过c++的class和struct保存数据，这个是要问NSObject new要开辟额外的对我们没有用的空间保存mediate元数据。而我们的Line，或者Line Position数据量大，没必要开辟这些额外空间。
+
+进入聊天室，会从数据库或者Server拉取历史消息，这个过程会有一大堆逻辑需要处理，在渲染到UI前还需要计算行高，显示聊天室消息我建议用UICollectionView而不是UITableView，为什么？因为这个可定制性强，你要知道，项目经理的想象力是十分丰富的，为了达到他们的需求，UITableView可能不能满足需求。我们为每一类消息一种Render，根据不同的消息类型构建不同的Render，而不要通过所有的消息一个类型Render，通过隐藏显示来Reusable Cell，给每种类型消息一个独立的Identifier，通过类似如下方法注册
+
+``` objective-c
++ (void)registeResuableCells:(UICollectionView *)collectionView {
+    [collectionView registerClass:[SLTimeRender class] forCellWithReuseIdentifier:NSStringFromClass(SLChatTimeMessage.class)];
+    [collectionView registerClass:[SLChatSystemMessageRender class] forCellWithReuseIdentifier:NSStringFromClass(SLChatSystemMessage.class)];
+    [collectionView registerClass:[SLUnknownMessageRender class] forCellWithReuseIdentifier:kUnknownMessageRenderIdentifer];
+
+    [collectionView registerClass:[SLOutgoingTextMessageRender class] forCellWithReuseIdentifier:[NSString stringWithFormat:kTextMessageRenderIdentiferFormat, kIncoming]];
+    [collectionView registerClass:[SLIncomingTextMessageRender class] forCellWithReuseIdentifier:[NSString stringWithFormat:kTextMessageRenderIdentiferFormat, kOutgoing]];
+    ...
+}
+```
+
+在Render里面可以通过Auto layout布局，这样解决了iPhone，ipad适配大部分问题。
+
+为了使进入聊天室更快，在聊天室里面向上滚动更顺畅，而不是像微信那样滚动到最上面还要等几秒，我们采取的策略是在滚动条快到顶部（offset < 300）时候异步提前取数据，等数据取回来后，提前将消息长度计算好，这个时候就可以充分利用并行计算。
+
+``` objective-c
+NSMutableArray<SLUITextMessageContentImpl *> *willCalculateMessages = [NSMutableArray new];
+    for (id<SLMessage> message in self.allMessages) {
+      	//先判断是不是文本消息
+        if ([SLMessageOpinion isTextMessage:message]) {
+            SLUITextMessageContentImpl *content = (SLUITextMessageContentImpl *)[message getContent];
+            if (![content hasLayoutData]) {
+                [willCalculateMessages addObject:content];
+            }
+        }
+    }
+    dispatch_apply(willCalculateMessages.count, dispatch_get_global_queue(0, 0), ^(size_t index) {
+      //计算每个文本消息的layout
+        [willCalculateMessages[index] layoutData];
+    });
+```
+
