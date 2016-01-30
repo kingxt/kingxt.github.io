@@ -1,0 +1,80 @@
+---
+layout:     post		
+title:      "聊天室加载图片优化"		
+date:       2015-01-30	
+author:     "KingXt"		
+tags:
+    - iOS
+
+### 聊天室加载图片优化 
+
+产品部门想优化加载图片体验想收到一个图片消息就能看到图片大致轮廓。我们聊天室在收到一个图片消息后，根据图片消息里面的URL去加载图片。这里有两个方法可以做到不错的图片加载体验，一种是做成类似微信那样，等加载后才显示出来，这样如果网速好的话，用户不会感觉到图片消息收到和图片展示完全之间的时间差。网速差的话，会发现图片和其他消息之间存在乱序问题，当然，如果是断网等下次联网收到的历史图片消息同样存在展位图的问题，期初我们是采用这个方案的，后来发现体验还是欠缺，这其中一个原因是微信在聊天室里面的显示的小图尺寸，一般不会超过10k，加载很快，但是我们的聊天室要求直接加载大图，图片会很清晰，用户体验很棒。例如下面同一张图片在微信和超信聊天室中展示：
+
+<img src="/img/post/IMG_3046.PNG" with="200" height="250"/>
+<img src="/img/post/IMG_3045.PNG" with="200" height="250"/>
+
+图片展示尺寸和图片质量都比微信大，为了增加用户体验，最好的办法是在收到图片消息时候，用户就能够看到一个大致轮廓的缩略图。我们找到了这篇文章。http://www.infoq.com/cn/news/2015/08/facebook-photo-preview，文章介绍了facebook怎么优化照片流。t借鉴了Facebook优化图片加载思想，然后分析我们图片上传压缩处理流程，我们找到了一个解决方案。
+我们服务器是通过ImageMagic处理客户端传来的图片的。将图片等比压缩到42*42大小内，然后通过jpeg压缩图片，Q值取0.5，压缩后图片小于600Bit。但是这个压缩图直接通过消息发送到接收方还是有点大，统计发现，这些图片文件头字节一样，如果我们能够砍掉这些文件头，将文件头存储在客户端，这不是节省了用户流量。通过研究jpeg文件描述方式发现，确实可以这样做，官方描述是文件头部分字节是压缩工具自定义的。我们通过ImageMagic压缩后，文件头都是一样。我们的做法是这样的：
+1、图片上传到服务器，服务器等比压缩图片（42*42），去掉图片的公共部分然后在最前面加一个字节的文件头版本号，然后将这部分数据base64返回给客户端（base64这个方案还可以优化）。
+2、客户端收到上传图片的服务器地址和图片缩略图的数据，再将内容通过socket协议发送给接受方。
+3、接受方将缩略图数据base64 decode，去掉数据的版本号，然后把服务器的文件头拼接上去，一个原始低jpeg图片就形成了。
+4、客户端直接拉伸显示图片是不合理的，我们的做法是将图片高斯模糊再填充到图片显示区域，产品部门想要的效果就达到了。
+
+
+```objc
+
+    + (UIImage *)jpgFormPreviewPhotoData:(NSString *)dataStr {
+    if (!checkNotNull(dataStr)) {
+        return nil;
+    }
+    NSData *hexData = [SLBase64 decodeString:dataStr];//hexStringToData(dataStr);
+    if (hexData.length < 5) {
+        return nil;
+    }
+    NSData *versionHexData = [hexData subdataWithRange:NSMakeRange(0,1)];
+    if (![versionHexData isEqualToData:[self getCurrentPreviewPhotoVersion]]) {
+        return nil;
+    }
+    NSMutableData *imageData = [NSMutableData dataWithData:[self getCommonJpgHeaderData]];
+    [imageData appendData:[hexData subdataWithRange:NSMakeRange(1,hexData.length - 1)]];
+    UIImage *image = [UIImage imageWithData:imageData];
+    return image;
+ }
+
++ (NSData *)getCommonJpgHeaderData {
+    static NSData *hexData;
+    static dispatch_once_t once;
+    dispatch_once(&once,^{
+        NSString *hexStr = @"ffd8ffe000104a46494600010101004800480000ffdb00430050373c463c32504641465a55505f78c882786e6e78f5afb991c8ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffdb004301555a5a786978eb8282ebffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffc0001108";
+        hexData = hexStringToData(hexStr);
+    });
+    return hexData;
+}
+
++ (NSData *)getCurrentPreviewPhotoVersion {
+    static NSData *versionData;
+    static dispatch_once_t once;
+    dispatch_once(&once,^{
+        NSString *hexStr = @"01";
+        versionData = hexStringToData(hexStr);
+    });
+    return versionData;
+}
+
+NSData* hexStringToData(NSString *hexString) {
+    const char *chars = [hexString UTF8String];
+    int i = 0;
+    NSInteger len = hexString.length;
+    NSMutableData *data = [NSMutableData dataWithCapacity:len / 2];
+    char byteChars[3] = {'\0','\0','\0'};
+    unsigned long wholeByte;
+    while (i < len) {
+        byteChars[0] = chars[i++];
+        byteChars[1] = chars[i++];
+        wholeByte = strtoul(byteChars, NULL, 16);
+        [data appendBytes:&wholeByte length:1];
+    }
+    return data;
+}
+```
+
