@@ -84,5 +84,5 @@ NSData* hexStringToData(NSString *hexString) {
 }
 ```
 
-<video width="304" height="540" src="/img/post/ImageLoading.mov"></video>
+<video width="304" height="540" src="/img/post/ImageLoading.mov" controls="controls"></video>
 
