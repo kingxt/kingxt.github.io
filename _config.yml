@@ -16,7 +16,7 @@ weibo_username:     2531664240
 github_username:    kingxt
 
 # Build settings
-highlighter: pygments
+highlighter: rouge
 pygments: true
 permalink: pretty
 paginate: 10
