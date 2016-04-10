@@ -46,6 +46,86 @@ public interface ViewPresenter {
 }
 ```
 
+Android需要抽象出如下接口
+
+```java
+
+public class ChaoxinActivity extends AppCompatActivity {
+
+    private boolean hasCreated;
+    private List<ViewPresenter> presentationList = new ArrayList<>();
+
+    protected void setViewPresenter(ViewPresenter presentation) {
+        presentationList.clear();
+        presentationList.add(presentation);
+        if (hasCreated) {
+            for (ViewPresenter presenter : presentationList) {
+                presenter.viewDidLoad();
+            }
+        }
+    }
+    
+    protected void setViewPresenters(List<ViewPresenter> presentationList) {
+        this.presentationList.clear();
+        this.presentationList.addAll(presentationList);
+        if (hasCreated) {
+            for (ViewPresenter presenter : presentationList) {
+                presenter.viewDidLoad();
+            }
+        }
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        System.out.println("onCreate");
+        hasCreated = true;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        System.out.println("onStart");
+        for (ViewPresenter presenter : presentationList) {
+            presenter.viewDidAppear();
+        }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        System.out.println("onRestart");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        System.out.println("onStop");
+        for (ViewPresenter presenter : presentationList) {
+            presenter.viewDidDisappear();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        System.out.println("onPause");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        System.out.println("onDestroy");
+        for (ViewPresenter presenter : presentationList) {
+            presenter.viewDidUnload();
+        }
+    }
+}
+
+
+```
+
 各个平台在Controller的生命周期中调用Presentation对应的方法即可，这些调用完全可以放在统一一个父类里面处理即可。
-<img src="/img/post/ViewPresentation.png"></img>
+<img src="/img/post/ViewPresentation.png"></img>。
+
 将做过大型项目的同学应该知道，业务逻辑处理后的DataModel和界面需要使用的ViewModel其实存储一个包含关系，ViewModel应该包含DataModel，ViewModel还有一些界面渲染需要的属性。这里提一下，我们超信iOS客户端UI都是基于AutoLayout纯代码写的，没有一个通过Xib实现。这里我推荐大家使用[Masonry](https://github.com/SnapKit/Masonry)，这个框架简化了大家使用AutoLayout复杂度。我们Mac客户端也可以复用SharedLogic层里面的所有逻辑，里面没有任何UI接口调用。OSX需要的ViewModel，iOS需要的ViewModel，Android需要的ViewModel随着平台不同里面属性会不同。
