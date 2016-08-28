@@ -1,5 +1,3 @@
-﻿# iOS App hook
-
 ---
 layout:     post		
 title:      "iOS App hook"		
