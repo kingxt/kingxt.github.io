@@ -19,11 +19,14 @@ Hook app前需要一台越狱手机，越狱手机要装上OpenSSH
 
 #### 1 给App砸壳
 可以在[这里](https://github.com/KJCracks/Clutch/releases)下载一个可执行的clutch，下载好后将clutch放在手机/usr/bin/目录下，导入时候要输手机密码，这个密码不是手机密码也不是电脑密码，如果没有改过，初始密码是alpine
+
 ```shell
 scp /path/to/Clutch root@<your.device.ip>:/usr/bin/
 ```
+
 或者通过pp助手import进去也可以。
 然后通过openssh连接到手机执行下面操作：
+
 ```shell
 ➜  / ssh root@192.168.1.103
 a-iPhone:~ root# clutch -i
@@ -58,14 +61,17 @@ Finished dumping com.tencent.xin in 29.8 seconds
 
 #### 3 class-dump提取header文件
 这个很简单，将ipa后缀改成zip，解压文件，在Payload目录下面执行class-dump
+
 ```shell
 ➜  Payload ./class-dump -H -o ./Headers WeChat.app 
 ```
+
 在当前目录下面会有一个Headers文件夹，里面是app里面的所有头文件。
 
 #### 4 用theos hook app
 关键部分在这里，首先得安装theos。
 建议mac电脑里面安装[brew](http://brew.sh/), 执行下面命令安装
+
 ```shell
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ```
@@ -97,6 +103,7 @@ Author/Maintainer Name [XXX]: tester
 Instantiating iphone/tweak in hookwechat/...
 Done.
 ```
+
 MobileSubstrate Bundle filter  这个命令后面选择你要hook app的bundle id。
 按照上面步骤操作后，在执行命令目录下面会有一个hookwechat目录，目录下面有四个文件，
 分别是control, hookwechat.plist, Makefile, Tweak.xm。
@@ -157,7 +164,9 @@ the generation of a class list and an automatic constructor.
 %end
 */
 ```
+
 这个文件要从头到尾看看，里面有hook语法。
+
 
 ```objc
 %hook XXXViewController
