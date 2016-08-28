@@ -10,6 +10,7 @@ tags:
 ---
 Hook app前需要一台越狱手机，越狱手机要装上OpenSSH
 整体步骤如下：
+
 > 1. [Clutch](https://github.com/KJCracks/Clutch)给Hook的App砸壳
 > 2. 安装[Reveal](http://revealapp.com/)，分析App结构
 > 2. 用[class-dump](https://github.com/nygard/class-dump)或者[Hopper](http://www.hopper.com/)分析App，[IDA](https://www.hex-rays.com/index.shtml)更加专业。
