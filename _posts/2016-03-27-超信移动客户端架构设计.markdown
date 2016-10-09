@@ -14,7 +14,7 @@ tags:
 超信为了解决这个问题采用共享逻辑开发方案，也就是逻辑层面，iOS，Android用一套代码，也有一些公司是采用这个方案，用C++写业务逻辑，然后Android将逻辑打包编译成so使用，iOS使用起来就相对方便多了。虽然我对C++不是很熟，但是Android调用C++ Api还是很蛋疼的，开发进度也会拉慢，调试起来也不方便。Google开发的J2objc是一个比较好的工具，超信也用了这个工具，它将java文件翻译成object-c文件，翻译过来的代码不难读懂。这个工具是开源的，对这个功能介绍可见文章[J2obc](http://kingxt.me/2015/11/05/J2objc/)。
 在开始阶段，我们app的架构如下:
 <img src="/img/post/app_architecture_1.png"/>
-这个架构中，Device注册一些平台相关Api，例如Sqlite操作，Http请求等。这个架构那够复用大部分与UI无关的业务逻辑，将服务器返回的协议封装成DataModel。ShareLogic层提供UI访问逻辑接口，比如UserFacade，GroupChatFacade，PrivateChatFacade。这些接口都是通以面设计模式设计。比如一个登陆功能流程如下：
+这个架构中，Device注册一些平台相关Api，例如Sqlite操作，Http请求等。这个架构那够复用大部分与UI无关的业务逻辑，将服务器返回的协议封装成DataModel。ShareLogic层提供UI访问逻辑接口，比如UserFacade，GroupChatFacade，PrivateChatFacade，这些接是以门面设计模式设计。比如一个登陆功能流程如下：
 <img src="/img/post/LoginController.png"/>
 这个方案解决了逻辑层面代码重复问题，减少了沟通成本。
 业务逻辑层以门面模式提供业务访问接口，然后通过Callback方式返回加工后的数据。
