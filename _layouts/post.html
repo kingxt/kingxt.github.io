@@ -11,6 +11,10 @@ layout: default
     header.intro-header{
         background-image: url('{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}')
     }
+
+    #yun-tie-sdk-wrap {
+        padding: 0;
+    }
 </style>
 <header class="intro-header" >
     <div class="container">
@@ -64,7 +68,7 @@ layout: default
                     {% endif %}
                 </ul>
                 <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
-                
+
                 <script>
                   var cloudTieConfig = {
                     url: document.location.href, 
