@@ -242,5 +242,3 @@ CREATE_ANNOTATONS_FUNC(SLClearGroupChatMessagesEvent, onClearGroupChatMessagesEv
 
 @end
 ```
-
-未完待续😊
