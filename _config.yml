@@ -1,12 +1,10 @@
 # Site settings
 title: KingXt Blog
-SEOTitle: 徐涛的博客 | KingXt Blog
+SEOTitle: KingXt Blog
 header-img: img/home-bg.jpg
-email: huxpro@gmail.com
 description: "懂点代码"
-keyword: "iOS, 徐涛"
+keyword: "KingXt"
 url: "http://kingxt.me"
-baseurl: ""
 
 
 
