@@ -23,11 +23,6 @@ anchorjs: true                          # if you want to customize anchor. check
 
 # Build settings
 markdown: kramdown
-markdown_ext:  markdown,mkdown,mkdn,mkd,md
-
-markdown: kramdown
-redcarpet:
-  extensions: ["smart", "tables", "no_intra_emphasis", "fenced_code_blocks", "autolink", "strikethrough", "superscript", "with_toc_data"]
 
 # Analytics settings
 # Baidu Analytics
