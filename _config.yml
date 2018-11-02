@@ -6,8 +6,6 @@ description: "懂点代码"
 keyword: "KingXt"
 url: "http://kingxt.me"
 
-
-
 # SNS settings
 RSS: false
 weibo_username:     2531664240
@@ -24,17 +22,10 @@ anchorjs: true                          # if you want to customize anchor. check
 # Build settings
 markdown: kramdown
 
-# Analytics settings
-# Baidu Analytics
-ba_track_id: 4cc1f2d8f3067386cc5cdb626a202900
-
-
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
 sidebar-about-description: "写代码是会上瘾的。"
 sidebar-avatar: /img/avatar.jpeg     # use absolute URL.
-
-
 
 # Featured Tags
 featured-tags: false                     # whether or not using Feature-Tags
