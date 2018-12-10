@@ -14,15 +14,15 @@ tags:
 
 1. macOS 10.14
 2. virtualbox 5.2
-3. centOS version [CentOS-7-x86_64-Minimal-1810.iso](http://mirrors.nwsuaf.edu.cn/centos/7.6.1810/isos/x86_64/CentOS-7-x86_64-Minimal-1810.iso)
+3. CentOS version [CentOS-7-x86_64-Minimal-1810.iso](http://mirrors.nwsuaf.edu.cn/CentOS/7.6.1810/isos/x86_64/CentOS-7-x86_64-Minimal-1810.iso)
 4. kubernetes版本v1.12.1
 
-在macOS上安装virtualbox，一路next即可，安装完virtualbox后，参考下面方式安装centOS
+在macOS上安装virtualbox，一路next即可，安装完virtualbox后，参考下面方式安装CentOS
 <img src="/img/post/k8s/k8s-install-env.gif" width="600"/>
 
 CentOS 安装好后是没有GUI的，进去要你输入账号密码，账号root，密码是安装时候设置的。
 
-安装完后，客户设置centOS的端口代理，这样就可以在宿主机ssh到虚拟机上操作了
+安装完后，客户设置CentOS的端口代理，这样就可以在宿主机ssh到虚拟机上操作了
 `ssh -p 9000 root@127.0.0.1`
 
 开始做一些前提工作
@@ -86,7 +86,7 @@ Loaded plugins: fastestmirror
 Loading mirror speeds from cached hostfile
  * base: mirrors.cn99.com
  * extras: mirrors.cn99.com
- * updates: centos.ustc.edu.cn
+ * updates: CentOS.ustc.edu.cn
 base                                                                                                                                     | 3.6 kB  00:00:00
 docker-ce-stable                                                                                                                         | 3.5 kB  00:00:00
 extras                                                                                                                                   | 3.4 kB  00:00:00
