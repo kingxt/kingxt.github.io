@@ -1,13 +1,13 @@
 ---
 layout:     post		
-title:      "从零开始搭建kubernetes集群"	
+title:      "搭建kubernetes集群"	
 date:       2018-12-07	
 author:     "KingXt"		
 tags:
     - kubernetes
 ---
 
-### 从零开始搭建kubernetes集群
+### 搭建kubernetes集群
 
 
 #### 1. 搭建环境
@@ -15,6 +15,7 @@ tags:
 1. macOS 10.14
 2. virtualbox 5.2
 3. centOS version [CentOS-7-x86_64-Minimal-1810.iso](http://mirrors.nwsuaf.edu.cn/centos/7.6.1810/isos/x86_64/CentOS-7-x86_64-Minimal-1810.iso)
+4. kubernetes版本v1.12.1
 
 在macOS上安装virtualbox，一路next即可，安装完virtualbox后，参考下面方式安装centOS
 <img src="/img/post/k8s/k8s-install-env.gif" width="600"/>
