@@ -316,3 +316,6 @@ kubectl apply -f https://docs.projectcalico.org/v3.1/getting-started/kubernetes/
 执行`kubectl get pod -n kube-system` 和 `kubectl get nodes` 查看状态。
 
 在node加入master节点如果出了问题，第一步是看kubelet在子节点是不是跑起来了`systemctl status kubelet`，如果没跑起来，用`journalctl -xefu kubelet`命令查看错误日志。
+
+最后通过如下方式将node2和node3加入到集群里面来。
+`kubeadm join 192.168.2.40:6443 --token iti9mo.pbnq2rkjyfsioo3v --discovery-token-ca-cert-hash sha256:a05528691d7117e21ccee9ee58a76a788026b9fc44ca1ebab5f452ed4ef003a6`
