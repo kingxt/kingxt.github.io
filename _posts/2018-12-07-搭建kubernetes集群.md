@@ -524,7 +524,7 @@ metadata:
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
 ```
-然后执行如下创建serviceaccount角色并获取token。
+执行如下创建serviceaccount角色并获取token。
 
 ```sheel
 [root@master ~]# kubectl create -f admin-role.yaml
