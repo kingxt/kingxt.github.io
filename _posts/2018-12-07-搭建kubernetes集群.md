@@ -319,3 +319,236 @@ kubectl apply -f https://docs.projectcalico.org/v3.1/getting-started/kubernetes/
 
 最后通过如下方式将node2和node3加入到集群里面来。
 `kubeadm join 192.168.2.40:6443 --token iti9mo.pbnq2rkjyfsioo3v --discovery-token-ca-cert-hash sha256:a05528691d7117e21ccee9ee58a76a788026b9fc44ca1ebab5f452ed4ef003a6`
+
+#### 4. 搭建Kubernetes Dashboard
+
+在master节点上建 kubernetes-dashboard.yaml 文件内容如下:
+
+```yaml
+# Filename: dashboard.yaml
+# Revision: 1.0
+# Date: 2018/10/18
+# Author: along
+# Description: Build kubernetes dashboard
+
+# ------------------- Dashboard Secret ------------------- #
+
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    k8s-app: kubernetes-dashboard
+  name: kubernetes-dashboard-certs
+  namespace: kube-system
+type: Opaque
+
+---
+# ------------------- Dashboard Service Account ------------------- #
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    k8s-app: kubernetes-dashboard
+  name: kubernetes-dashboard
+  namespace: kube-system
+
+---
+# ------------------- Dashboard Role & Role Binding ------------------- #
+
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: kubernetes-dashboard-minimal
+  namespace: kube-system
+rules:
+  # Allow Dashboard to create 'kubernetes-dashboard-key-holder' secret.
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["create"]
+  # Allow Dashboard to create 'kubernetes-dashboard-settings' config map.
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["create"]
+  # Allow Dashboard to get, update and delete Dashboard exclusive secrets.
+- apiGroups: [""]
+  resources: ["secrets"]
+  resourceNames: ["kubernetes-dashboard-key-holder", "kubernetes-dashboard-certs"]
+  verbs: ["get", "update", "delete"]
+  # Allow Dashboard to get and update 'kubernetes-dashboard-settings' config map.
+- apiGroups: [""]
+  resources: ["configmaps"]
+  resourceNames: ["kubernetes-dashboard-settings"]
+  verbs: ["get", "update"]
+  # Allow Dashboard to get metrics from heapster.
+- apiGroups: [""]
+  resources: ["services"]
+  resourceNames: ["heapster"]
+  verbs: ["proxy"]
+- apiGroups: [""]
+  resources: ["services/proxy"]
+  resourceNames: ["heapster", "http:heapster:", "https:heapster:"]
+  verbs: ["get"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kubernetes-dashboard-minimal
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kubernetes-dashboard-minimal
+subjects:
+- kind: ServiceAccount
+  name: kubernetes-dashboard
+  namespace: kube-system
+
+---
+# ------------------- Dashboard Deployment ------------------- #
+
+kind: Deployment
+apiVersion: apps/v1beta2
+metadata:
+  labels:
+    k8s-app: kubernetes-dashboard
+  name: kubernetes-dashboard
+  namespace: kube-system
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      k8s-app: kubernetes-dashboard
+  template:
+    metadata:
+      labels:
+        k8s-app: kubernetes-dashboard
+    spec:
+      containers:
+      - name: kubernetes-dashboard
+        image: mirrorgooglecontainers/kubernetes-dashboard-amd64:v1.10.0
+        ports:
+        - containerPort: 8443
+          protocol: TCP
+        args:
+          - --auto-generate-certificates
+          # Uncomment the following line to manually specify Kubernetes API server Host
+          # If not specified, Dashboard will attempt to auto discover the API server and connect
+          # to it. Uncomment only if the default does not work.
+          # - --apiserver-host=http://my-address:port
+        volumeMounts:
+        - name: kubernetes-dashboard-certs
+          mountPath: /certs
+          # Create on-disk volume to store exec logs
+        - mountPath: /tmp
+          name: tmp-volume
+        livenessProbe:
+          httpGet:
+            scheme: HTTPS
+            path: /
+            port: 8443
+          initialDelaySeconds: 30
+          timeoutSeconds: 30
+      volumes:
+      - name: kubernetes-dashboard-certs
+        secret:
+          secretName: kubernetes-dashboard-certs
+      - name: tmp-volume
+        emptyDir: {}
+      serviceAccountName: kubernetes-dashboard
+      # Comment the following tolerations if Dashboard must not be deployed on master
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+
+---
+
+# ------------------- Dashboard Service ------------------- #
+
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    k8s-app: kubernetes-dashboard
+  name: kubernetes-dashboard
+  namespace: kube-system
+spec:
+  type: NodePort
+  ports:
+    - port: 443
+      targetPort: 8443
+      nodePort: 30000
+  selector:
+    k8s-app: kubernetes-dashboard
+
+```
+
+然后就可以部署dashboard了
+`kubectl create -f kubernetes-dashboard.yaml`
+
+```
+[root@master ~]# kubectl -n kube-system get svc kubernetes-dashboard
+NAME                   TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)         AGE
+kubernetes-dashboard   NodePort   10.107.152.100   <none>        443:30000/TCP   4h29m
+```
+
+然后我们可以通过`https://192.168.2.40:30000/`dashboard了。chrome浏览器有安全策略控制，点击advance，然后Proceed to 192.168.2.40 (unsafe)，可以看到如下界面：
+<img src="/img/post/k8s/dashboard-login.png" width="600"/>
+
+我们用token方式登录，先建立admin-role.yaml文件，内容如下：
+
+```yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: admin
+  annotations:
+    rbac.authorization.kubernetes.io/autoupdate: "true"
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- kind: ServiceAccount
+  name: admin
+  namespace: kube-system
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin
+  namespace: kube-system
+  labels:
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+```
+然后执行如下创建serviceaccount角色并获取token。
+
+```sheel
+[root@master ~]# kubectl create -f admin-role.yaml
+
+clusterrolebinding.rbac.authorization.k8s.io/admin created
+serviceaccount/admin created
+[root@master ~]# kubectl -n kube-system get secret|grep admin-token
+admin-token-rdpcw                                kubernetes.io/service-account-token   3      13s
+[root@master ~]# kubectl -n kube-system describe secret admin-token-rdpcw
+Name:         admin-token-rdpcw
+Namespace:    kube-system
+Labels:       <none>
+Annotations:  kubernetes.io/service-account.name: admin
+              kubernetes.io/service-account.uid: 407647a5-feb2-11e8-ab46-080027c9c18d
+
+Type:  kubernetes.io/service-account-token
+
+Data
+====
+ca.crt:     1025 bytes
+namespace:  11 bytes
+token:      eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi10b2tlbi1yZHBjdyIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJhZG1pbiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjQwNzY0N2E1LWZlYjItMTFlOC1hYjQ2LTA4MDAyN2M5YzE4ZCIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDprdWJlLXN5c3RlbTphZG1pbiJ9.Ni1r3q7xuKLstby93F5GSeVRJNfo3nuAgom4kgV9HRJihUH9s92vxNHGCcduw__2nPinLQbONbPlmCn7VkOjSloC8_EHj96cTBJiJAb64hFlndz3vi5zFCnWQygt2yfOyLaLL4qN-7T2oki1HEf8AM4E4t0cl25M-FhxD8OiIeVcg9AAcCetIz_LTX4c7c8_1gpZAbApcFql9hz-f7g5HgFroRD9PjogJm1TPGYh1_iRk-AI4GzUTerD0XVdm1S5-2Zu_B_nja4YqyveMAvp0wrynxKms2MWZT572KBulLicG_xdi9CMeasHbDnqOw8ZrhYfM48envINcL8v9sE0rg
+[root@master ~]#
+```
+
+通过上面的token登录就可以进入dashboard主界面了
+<img src="/img/post/k8s/dashboard-main.png" width="600"/>
