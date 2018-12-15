@@ -13,14 +13,15 @@ github_username:    kingxt
 
 # Build settings
 highlighter: rouge
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
 pygments: true
 permalink: pretty
 paginate: 10
 exclude: ["less","node_modules","Gruntfile.js","package.json","README.md"]
 anchorjs: true                          # if you want to customize anchor. check out line:181 of `post.html`
-
-# Build settings
-markdown: kramdown
 
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
