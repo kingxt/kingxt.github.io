@@ -1,4 +1,4 @@
-#KingXt博客，
+#KingXt博客， kingxt.me
 ## Thanks
 
 This theme is forked from 
