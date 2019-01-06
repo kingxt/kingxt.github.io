@@ -38,7 +38,7 @@ Swap:             0           0           0
 
 下面开始安装docker，docker一定要指定版本号。
 
-```sheel
+``` bash
 [root@localhost ~]# yum update && yum install docker-ce-18.06.1.ce
 [root@localhost ~]# docker --version
 Docker version 18.06.1-ce, build e68fc7a
@@ -62,7 +62,7 @@ This message shows that your installation appears to be working correctly.
 #### 2. 安装kubernetes
 可以参考下面步骤配置k8s源
 
-```sheel
+``` bash
 [root@localhost ~]# cat <<EOF > /etc/yum.repos.d/kubernates.repo
 > [kubernetes]
 > name=Kubernetes
@@ -79,7 +79,7 @@ This message shows that your installation appears to be working correctly.
 1. 先关闭SELinux `setenforce 0`
 2. 安装k8s组件 `yum install -y kubelet-1.12.1 kubeadm-1.12.1 kubectl-1.12.1`
 
-```
+``` bash
 [root@localhost ~]# yum install -y kubelet-1.12.1 kubeadm-1.12.1 kubectl-1.12.1
 Failed to set locale, defaulting to C
 Loaded plugins: fastestmirror
@@ -152,21 +152,21 @@ Complete!
 
 kubelet启动时带的cgroup-driver和docker使用的cgroup-driver参数可能有所不同，会导致kubelet服务启动失败，我们将其改成一样。
 
-```sheel
+``` bash
 [root@localhost ~]# docker info | grep -i cgroup
 Cgroup Driver: cgroupfs
 ```
 
 启动kubelet
 
-```sheel
+``` bash
 [root@localhost ~]# systemctl enable kubelet && systemctl start kubelet
 Created symlink from /etc/systemd/system/multi-user.target.wants/kubelet.service to /etc/systemd/system/kubelet.service.
 ```
 
 查询依赖关系
 
-```
+``` bash
 [root@localhost ~]# kubeadm config images list --kubernetes-version v1.12.1
 k8s.gcr.io/kube-apiserver:v1.12.1
 k8s.gcr.io/kube-controller-manager:v1.12.1
@@ -188,7 +188,7 @@ k8s.gcr.io/coredns:1.2.2
 
 因为墙的关系，首先需要配置下docker镜像位置，可以参考下面配置：
 
-```
+``` bash
 docker pull anjia0532/google-containers.kube-controller-manager-amd64:v1.12.1
 docker pull anjia0532/google-containers.kube-apiserver-amd64:v1.12.1
 docker pull anjia0532/google-containers.kube-scheduler-amd64:v1.12.1
@@ -219,7 +219,7 @@ docker rmi anjia0532/google-containers.coredns:1.1.3
 
 执行这个命令可能会遇到下面这个问题
 
-```sheel
+``` bash
 error execution phase preflight: [preflight] Some fatal errors occurred:
 	[ERROR FileContent--proc-sys-net-bridge-bridge-nf-call-iptables]: /proc/sys/net/bridge/bridge-nf-call-iptables contents are not set to 1
 ```
@@ -230,7 +230,7 @@ error execution phase preflight: [preflight] Some fatal errors occurred:
 
 kubeadm init 如果执行失败要 kubeadm reset 重置下。
 
-```
+``` bash
 [root@localhost ~]# kubeadm init --kubernetes-version=v1.12.1 --pod-network-cidr=192.168.0.0/16 --apiserver-advertise-address=192.168.2.40
 [init] using Kubernetes version: v1.12.1
 [preflight] running pre-flight checks
@@ -301,14 +301,14 @@ as root:
 
 初始化集群成功后需要执行如下命令：
 
-```sheel
+``` bash
 [root@localhost ~]# mkdir -p $HOME/.kube
 [root@localhost ~]# cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 [root@localhost ~]# chown $(id -u):$(id -g) $HOME/.kube/config
 ```
 安装calico网络插件：
 
-```
+``` bash
 kubectl apply -f https://docs.projectcalico.org/v3.1/getting-started/kubernetes/installation/hosted/rbac-kdd.yaml
 kubectl apply -f https://docs.projectcalico.org/v3.1/getting-started/kubernetes/installation/hosted/kubernetes-datastore/calico-networking/1.7/calico.yaml
 ```
@@ -488,7 +488,7 @@ spec:
 然后就可以部署dashboard了
 `kubectl create -f kubernetes-dashboard.yaml`
 
-```
+``` bash
 [root@master ~]# kubectl -n kube-system get svc kubernetes-dashboard
 NAME                   TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)         AGE
 kubernetes-dashboard   NodePort   10.107.152.100   <none>        443:30000/TCP   4h29m
@@ -499,7 +499,7 @@ kubernetes-dashboard   NodePort   10.107.152.100   <none>        443:30000/TCP  
 
 我们用token方式登录，先建立admin-role.yaml文件，内容如下：
 
-```yaml
+``` yaml
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
