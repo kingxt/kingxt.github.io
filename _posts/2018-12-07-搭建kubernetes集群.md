@@ -324,7 +324,7 @@ kubectl apply -f https://docs.projectcalico.org/v3.1/getting-started/kubernetes/
 
 在master节点上建 kubernetes-dashboard.yaml 文件内容如下:
 
-```yaml
+``` yaml
 # Filename: dashboard.yaml
 # Revision: 1.0
 # Date: 2018/10/18
@@ -526,7 +526,7 @@ metadata:
 ```
 执行如下创建serviceaccount角色并获取token。
 
-```sheel
+``` bash
 [root@master ~]# kubectl create -f admin-role.yaml
 
 clusterrolebinding.rbac.authorization.k8s.io/admin created
