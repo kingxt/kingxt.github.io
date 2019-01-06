@@ -20,14 +20,14 @@ Hook app前需要一台越狱手机，越狱手机要装上OpenSSH
 #### 1 给App砸壳
 可以在[这里](https://github.com/KJCracks/Clutch/releases)下载一个可执行的clutch，下载好后将clutch放在手机/usr/bin/目录下，导入时候要输手机密码，这个密码不是手机密码也不是电脑密码，如果没有改过，初始密码是alpine
 
-```shell
+``` bash
 scp /path/to/Clutch root@<your.device.ip>:/usr/bin/
 ```
 
 或者通过pp助手import进去也可以。
 然后通过openssh连接到手机执行下面操作：
 
-```shell
+``` bash
 ➜  / ssh root@192.168.1.103
 a-iPhone:~ root# clutch -i
 Installed apps:
@@ -72,12 +72,12 @@ Finished dumping com.tencent.xin in 29.8 seconds
 关键部分在这里，首先得安装theos。
 建议mac电脑里面安装[brew](http://brew.sh/), 执行下面命令安装
 
-```shell
+``` bash
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ```
 然后安装[这个文章](https://github.com/theos/theos/wiki/Installation)安装theos。
 
-```shell
+``` bash
 ➜  crack export THEOS=/opt/theos/
 ➜  crack $THEOS/bin/nic.pl
 NIC 2.0 - New Instance Creator
@@ -110,7 +110,7 @@ MobileSubstrate Bundle filter  这个命令后面选择你要hook app的bundle i
 
 修改Makefile如下
 
-```shell
+``` bash
 export THEOS=/opt/theos
 #手机ip
 THEOS_DEVICE_IP = 192.168.1.111 
@@ -128,7 +128,7 @@ after-install::
 
 tweak.xm 默认文本如下
 
-```objc
+``` objectivec
 /* How to Hook with Logos
 Hooks are written with syntax similar to that of an Objective-C @implementation.
 You don't need to #include <substrate.h>, it will be done automatically, as will
@@ -168,7 +168,7 @@ the generation of a class list and an automatic constructor.
 这个文件要从头到尾看看，里面有hook语法。
 
 
-```objc
+``` objectivec
 %hook XXXViewController
 
 %new
