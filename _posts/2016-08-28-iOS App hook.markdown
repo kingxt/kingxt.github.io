@@ -50,7 +50,6 @@ Zipping WeChatShareExtensionNew.appex
 Writing new checksum
 DONE: /private/var/mobile/Documents/Dumped/com.tencent.xin-iOS7.0-(Clutch-2.0.4).ipa
 Finished dumping com.tencent.xin in 29.8 seconds
-
 ```
 
 可以通过PP助手提取出砸过壳的ipa，类似上面的/private/var/mobile/Documents/Dumped/com.tencent.xin-iOS7.0-(Clutch-2.0.4).ipa位置。
