@@ -14,7 +14,7 @@ tags:
 
 1. macOS 10.14
 2. virtualbox 5.2
-3. CentOS version [CentOS-7-x86_64-Minimal-1810.iso](http://mirrors.nwsuaf.edu.cn/CentOS/7.6.1810/isos/x86_64/CentOS-7-x86_64-Minimal-1810.iso)
+3. CentOS version [CentOS-7-x86_64-Minimal-1810.iso](http://mirrors.nwsuaf.edu.cn/centos/7.6.1810/isos/x86_64/CentOS-7-x86_64-Minimal-1810.iso)
 4. kubernetes版本v1.12.1
 
 在macOS上安装virtualbox，一路next即可，安装完virtualbox后，参考下面方式安装CentOS
