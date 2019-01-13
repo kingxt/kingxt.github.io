@@ -61,7 +61,8 @@ Docker version 18.06.1-ce, build e68fc7a
 
 4. 启动docker `systemctl start docker & systemctl enable docker`， 
 5. 验证docker
-```sheel
+
+``` bash
 [root@localhost ~]# docker run hello-world
 Unable to find image 'hello-world:latest' locally
 latest: Pulling from library/hello-world
@@ -74,6 +75,7 @@ This message shows that your installation appears to be working correctly.
 ```
 
 #### 2. 安装kubernetes
+
 可以参考下面步骤配置k8s源
 
 ``` bash
