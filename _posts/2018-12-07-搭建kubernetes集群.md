@@ -192,6 +192,7 @@ k8s.gcr.io/coredns:1.2.2
 #### 3. 搭建kubernetes集群
 先关闭上面创建的master节点，右键可以复制两个节点，我们命名起为CentOS-Node2，CentOS-Node3，如下图所示。
 <img src="/img/post/k8s/k8s-p1.png" width="600"/>
+启动其他两个CentOS后需要修改主机名`hostnamectl set-hostname node1`，修改后重启可以看到主机名称变化。
 
 可以启动其中两个看看虚拟机的ip，发现都一样。这样虚拟机之间就不能互通了。
 可以设置网络桥接模式，如下图所示：
