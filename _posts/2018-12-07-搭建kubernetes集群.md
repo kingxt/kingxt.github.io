@@ -200,29 +200,28 @@ k8s.gcr.io/coredns:1.2.2
 
 因为墙的关系，首先需要配置下docker镜像位置，可以参考下面配置：
 ``` bash
-docker pull anjia0532/google-containers.kube-controller-manager-amd64:v1.12.1
-docker pull anjia0532/google-containers.kube-apiserver-amd64:v1.12.1
-docker pull anjia0532/google-containers.kube-scheduler-amd64:v1.12.1
-docker pull anjia0532/google-containers.kube-proxy-amd64:v1.12.1
+docker pull anjia0532/google-containers.kube-apiserver:v1.12.1
+docker pull anjia0532/google-containers.kube-controller-manager:v1.12.1
+docker pull anjia0532/google-containers.kube-scheduler:v1.12.1
+docker pull anjia0532/google-containers.kube-proxy:v1.12.1
 docker pull anjia0532/google-containers.pause:3.1
-docker pull anjia0532/google-containers.etcd-amd64:3.2.18
-docker pull anjia0532/google-containers.coredns:1.1.3
+docker pull anjia0532/google-containers.etcd:3.2.24
+docker pull anjia0532/google-containers.coredns:1.2.2
 
-docker tag anjia0532/google-containers.kube-controller-manager-amd64:v1.12.1 k8s.gcr.io/kube-controller-manager-amd64:v1.12.1
-docker tag anjia0532/google-containers.kube-apiserver-amd64:v1.12.1 k8s.gcr.io/kube-apiserver-amd64:v1.12.1
-docker tag anjia0532/google-containers.kube-scheduler-amd64:v1.12.1 k8s.gcr.io/kube-scheduler-amd64:v1.12.1
-docker tag anjia0532/google-containers.kube-proxy-amd64:v1.12.1 k8s.gcr.io/kube-proxy-amd64:v1.12.1
+docker tag anjia0532/google-containers.kube-apiserver:v1.12.1 k8s.gcr.io/kube-apiserver:v1.12.1
+docker tag anjia0532/google-containers.kube-controller-manager:v1.12.1 k8s.gcr.io/kube-controller-manager:v1.12.1
+docker tag anjia0532/google-containers.kube-scheduler:v1.12.1 k8s.gcr.io/kube-scheduler:v1.12.1
+docker tag anjia0532/google-containers.kube-proxy:v1.12.1 k8s.gcr.io/kube-proxy:v1.12.1
 docker tag anjia0532/google-containers.pause:3.1 k8s.gcr.io/pause:3.1
-docker tag anjia0532/google-containers.etcd-amd64:3.2.18 k8s.gcr.io/etcd-amd64:3.2.18
-docker tag anjia0532/google-containers.coredns:1.1.3 k8s.gcr.io/coredns:1.1.3
+docker tag anjia0532/google-containers.etcd:3.2.24 k8s.gcr.io/etcd:3.2.24
+docker tag anjia0532/google-containers.coredns:1.2.2 k8s.gcr.io/coredns:1.2.2
 
-docker rmi anjia0532/google-containers.kube-controller-manager-amd64:v1.12.1
-docker rmi anjia0532/google-containers.kube-apiserver-amd64:v1.12.1
-docker rmi anjia0532/google-containers.kube-scheduler-amd64:v1.12.1
-docker rmi anjia0532/google-containers.kube-proxy-amd64:v1.12.1
-docker rmi anjia0532/google-containers.pause:3.1
-docker rmi anjia0532/google-containers.etcd-amd64:3.2.18
-docker rmi anjia0532/google-containers.coredns:1.1.3
+images=(kube-proxy:v1.12.1 kube-scheduler:v1.12.1 kube-controller-manager:v1.12.1 kube-apiserver:v1.12.1 etcd:3.2.24 pause:3.1 coredns:1.2.2)
+for imageName in ${images[@]} ; do
+  docker pull anjia0532/google-containers.$imageName
+  docker tag anjia0532/google-containers.$imageName k8s.gcr.io/$imageName
+  docker rmi anjia0532/google-containers.$imageName
+done
 ```
 
 在Master主节点（CentOS-master）上执行:
