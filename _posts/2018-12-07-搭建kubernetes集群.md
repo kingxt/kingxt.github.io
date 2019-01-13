@@ -59,9 +59,8 @@ yum-config-manager --enable docker-ce-testing
 Docker version 18.06.1-ce, build e68fc7a
 ```
 
-启动docker `systemctl start docker & systemctl enable docker`， 
-验证docker
-
+4. 启动docker `systemctl start docker & systemctl enable docker`， 
+5. 验证docker
 ```sheel
 [root@localhost ~]# docker run hello-world
 Unable to find image 'hello-world:latest' locally
