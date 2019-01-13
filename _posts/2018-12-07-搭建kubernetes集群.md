@@ -32,7 +32,6 @@ CentOS 安装好后是没有GUI的，进去要你输入账号密码，账号root
 开始做一些前提工作
 1. 关闭防火墙  `systemctl stop firewalld & systemctl disable firewalld`
 2. 关闭swap `sed -i '/ swap / s/^/#/' /etc/fstab` `swapoff -a` ，可以通过top验证下swap是不是0，或者通过free -m
-
 ```sheel
 [root@localhost ~]# free -m
               total        used        free      shared  buff/cache   available
@@ -77,7 +76,6 @@ This message shows that your installation appears to be working correctly.
 #### 2. 安装kubernetes
 
 可以参考下面步骤配置k8s源
-
 ``` bash
 [root@localhost ~]# cat <<EOF > /etc/yum.repos.d/kubernates.repo
 > [kubernetes]
@@ -167,21 +165,18 @@ Complete!
 ```
 
 kubelet启动时带的cgroup-driver和docker使用的cgroup-driver参数可能有所不同，会导致kubelet服务启动失败，我们将其改成一样。
-
 ``` bash
 [root@localhost ~]# docker info | grep -i cgroup
 Cgroup Driver: cgroupfs
 ```
 
 启动kubelet
-
 ``` bash
 [root@localhost ~]# systemctl enable kubelet && systemctl start kubelet
 Created symlink from /etc/systemd/system/multi-user.target.wants/kubelet.service to /etc/systemd/system/kubelet.service.
 ```
 
 查询依赖关系
-
 ``` bash
 [root@localhost ~]# kubeadm config images list --kubernetes-version v1.12.1
 k8s.gcr.io/kube-apiserver:v1.12.1
@@ -203,7 +198,6 @@ k8s.gcr.io/coredns:1.2.2
 <img src="/img/post/k8s/k8s-p2.png" width="600"/>
 
 因为墙的关系，首先需要配置下docker镜像位置，可以参考下面配置：
-
 ``` bash
 docker pull anjia0532/google-containers.kube-controller-manager-amd64:v1.12.1
 docker pull anjia0532/google-containers.kube-apiserver-amd64:v1.12.1
