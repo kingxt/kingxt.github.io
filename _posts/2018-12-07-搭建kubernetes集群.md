@@ -41,9 +41,20 @@ Swap:             0           0           0
 ```
 
 下面开始安装docker，docker一定要指定版本号。
+1. 安装docker-ce需要安装以下依赖
+```bash
+yum install -y yum-utils device-mapper-persistent-data lvm2
+```
+2. 添加安装源并启用
+```bash
+yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+yum-config-manager --enable docker-ce-edge
+yum-config-manager --enable docker-ce-testing
+```
 
+3. 安装docker-ce
 ``` bash
-[root@localhost ~]# yum update && yum install docker-ce-18.06.1.ce
+[root@localhost ~]# yum install docker-ce-18.06.1.ce
 [root@localhost ~]# docker --version
 Docker version 18.06.1-ce, build e68fc7a
 ```
