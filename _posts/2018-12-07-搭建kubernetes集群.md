@@ -19,7 +19,10 @@ tags:
 
 在macOS上安装virtualbox，一路next即可，安装完virtualbox后，参考下面方式安装CentOS
 <img src="/img/post/k8s/k8s-install-env.gif" width="600"/>
-如果用触控板，虚拟机新建好后要在虚拟机上右键选择`Settings->System->Motherboard->Pointing Device`选择选项中的USB Tablet，否则有可能后面安装CentOS时候看不到鼠标指针。
+如果用触控板，虚拟机新建好后要在虚拟机上右键选择`Settings->System->Motherboard->Pointing Device`选择
+
+1. 选项中的USB Tablet，否则有可能后面安装CentOS时候看不到鼠标指针。
+2. 如果CentOS装好了但是不能访问，到`/etc/sysconfig/network-scripts/`目录下查看ifcfg-enp0s3文件的ONBOOT=yes是不是设置对，这个意思是是否启动enp0s3网卡。如果设置为no，需要将其设置为yes，并重启网络服务`service network restart`。
 
 CentOS 安装好后是没有GUI的，进去要你输入账号密码，账号root，密码是安装时候设置的。
 
