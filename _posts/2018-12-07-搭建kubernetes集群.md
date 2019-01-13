@@ -41,6 +41,7 @@ Swap:             0           0           0
 ```
 
 下面开始安装docker，docker一定要指定版本号。
+
 1. 安装docker-ce需要安装以下依赖
 ```bash
 yum install -y yum-utils device-mapper-persistent-data lvm2
@@ -59,9 +60,9 @@ yum-config-manager --enable docker-ce-testing
 Docker version 18.06.1-ce, build e68fc7a
 ```
 
-4. 启动docker `systemctl start docker & systemctl enable docker`， 
+4. 启动docker `systemctl start docker & systemctl enable docker`
+ 
 5. 验证docker
-
 ``` bash
 [root@localhost ~]# docker run hello-world
 Unable to find image 'hello-world:latest' locally
@@ -69,7 +70,6 @@ latest: Pulling from library/hello-world
 d1725b59e92d: Pull complete
 Digest: sha256:0add3ace90ecb4adbf7777e9aacf18357296e799f81cabc9fde470971e499788
 Status: Downloaded newer image for hello-world:latest
-
 Hello from Docker!
 This message shows that your installation appears to be working correctly.
 ```
