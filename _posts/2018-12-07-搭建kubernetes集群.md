@@ -225,7 +225,7 @@ done
 ```
 
 在Master主节点（CentOS-master）上执行:
-`kubeadm init --kubernetes-version=v1.12.1 --pod-network-cidr=192.168.0.0/16 --apiserver-advertise-address=192.168.2.29`
+`kubeadm init --kubernetes-version=v1.12.1 --pod-network-cidr=192.168.0.0/16 --apiserver-advertise-address=192.168.2.40`
 
 执行这个命令可能会遇到下面这个问题
 
